@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 const _glassColor = Color(0xff666666); // Base glass color
-const _iconShadowColor = Color(0xff333333); // Icon shadow color
+const _iconShadowColor = Color.fromARGB(
+  255,
+  167,
+  167,
+  167,
+); // Icon shadow color
 
 Color getGlassColor(double opacity) {
   return _glassColor.withValues(alpha: opacity);
@@ -11,8 +16,8 @@ Color getIconShadowColor(double opacity) {
   return _iconShadowColor.withValues(alpha: opacity);
 }
 
-final ThemeData lightTheme = ThemeData.dark().copyWith(
-  colorScheme: ColorScheme.dark(
+final ThemeData lightTheme = ThemeData.light().copyWith(
+  colorScheme: ColorScheme.light(
     brightness: Brightness.light,
     primary: Colors.white,
     onPrimary: Colors.black54,
@@ -28,12 +33,22 @@ final ThemeData lightTheme = ThemeData.dark().copyWith(
     displayLarge: TextStyle(
       fontSize: 36,
       fontWeight: FontWeight.bold,
-      color: Colors.black54,
+      color: Colors.black,
     ),
-    bodyMedium: TextStyle(fontSize: 14, color: Color(0xff777777)),
+    bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
+  ),
+  splashFactory: NoSplash.splashFactory,
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    showSelectedLabels: false,
+    showUnselectedLabels: false,
+    selectedItemColor: Colors.black,
+    unselectedItemColor: Colors.grey[500],
+    type: BottomNavigationBarType.fixed,
+    elevation: 0,
+    enableFeedback: false,
   ),
 
-  iconTheme: const IconThemeData(color: Colors.white),
+  iconTheme: const IconThemeData(color: Colors.black),
   buttonTheme: ButtonThemeData(
     shape: RoundedRectangleBorder(),
     textTheme: ButtonTextTheme.primary,
@@ -59,12 +74,23 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
     displayLarge: TextStyle(
       fontSize: 36,
       fontWeight: FontWeight.bold,
-      color: Colors.white70,
+      color: Colors.white,
     ),
-    bodyMedium: TextStyle(fontSize: 14, color: Color(0xff444444)),
+    bodyMedium: TextStyle(fontSize: 14, color: Colors.white),
   ),
 
-  iconTheme: IconThemeData(color: getIconShadowColor(1.0)),
+  splashFactory: NoSplash.splashFactory,
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    showSelectedLabels: false,
+    showUnselectedLabels: false,
+    selectedItemColor: Colors.white,
+    unselectedItemColor: Colors.grey[700],
+    type: BottomNavigationBarType.fixed,
+    elevation: 0,
+    enableFeedback: false,
+  ),
+  iconTheme: IconThemeData(color: Colors.white),
+
   buttonTheme: ButtonThemeData(
     shape: RoundedRectangleBorder(),
     textTheme: ButtonTextTheme.primary,

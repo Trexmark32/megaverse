@@ -19,7 +19,9 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    console.log("LoginScreen: Building LoginScreen widget");
     final config = ref.watch(appConfigProvider);
+    console.log("LoginScreen: After reading appConfigProvider");
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1D29), // dark background
@@ -276,6 +278,7 @@ class LoginScreen extends ConsumerWidget {
     return () async {
       console.log("LoginScreen: _login - START");
       try {
+        ref.read(authProvider.notifier).setLoading();
         final Web3AuthResponse response = await method();
         console.log(
           "LoginScreen: _login - Method successful. Response SessionId: ${response.sessionId}, PrivKey: ${response.privKey?.isNotEmpty ?? false}",
@@ -291,14 +294,17 @@ class LoginScreen extends ConsumerWidget {
         ref.read(logoutVisibleProvider.notifier).state = true;
         console.log("LoginScreen: _login - logoutVisibleProvider set to true.");
         // Invalidate authProvider to re-trigger auth state check if needed
-        ref.read(authProvider.notifier).state = true;
+        // ref.read(authProvider.notifier).state = true;
+        ref.read(authProvider.notifier).setAuthenticated();
         console.log("LoginScreen: _login - authProvider invalidated. END");
         Navigator.pushReplacementNamed(ref.context, RouteNames.home);
       } on UserCancelledException {
         console.log("LoginScreen: _login - User cancelled. END");
         // Optionally, handle UI feedback for cancellation
+        ref.read(authProvider.notifier).setUnauthenticated();
       } on UnKnownException {
         console.log("LoginScreen: _login - Unknown exception occurred. END");
+        ref.read(authProvider.notifier).setUnauthenticated();
       }
     };
   }
@@ -308,7 +314,7 @@ class LoginScreen extends ConsumerWidget {
       final Web3AuthResponse response = await Web3AuthFlutter.login(
         LoginParams(
           loginProvider: Provider.google,
-          mfaLevel: MFALevel.DEFAULT,
+          mfaLevel: MFALevel.OPTIONAL,
           curve: Curve.secp256k1,
         ),
       );
