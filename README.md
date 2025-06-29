@@ -47,7 +47,7 @@ Megaverse is a cutting-edge Flutter application designed to be a social platform
 
 1.  **Clone the repository:**
     ```bash
-    git clone [your-repo-url]
+    git clone https://github.com/Trexmark32/megaverse.git
     cd megaverse
     ```
 2.  **Install Dependencies:**
