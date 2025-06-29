@@ -1,18 +1,14 @@
 import 'dart:developer' as console;
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart' hide Curve;
-import 'package:flutter_riverpod/flutter_riverpod.dart' hide Provider;
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:megaverse/core/config/app_config.dart';
 import 'package:megaverse/core/routing/route_names.dart';
 import 'package:megaverse/pages/web_view.dart';
-import 'package:megaverse/providers/auth_provider.dart';
+import 'package:megaverse/services/auth/auth_service.dart'; // New import
 import 'package:megaverse/widgets/email_phone_toggle_widget.dart';
-import 'package:web3auth_flutter/enums.dart';
-import 'package:web3auth_flutter/input.dart';
-import 'package:web3auth_flutter/output.dart';
-import 'package:web3auth_flutter/web3auth_flutter.dart';
+import 'package:megaverse/widgets/login_widgets.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
@@ -22,6 +18,9 @@ class LoginScreen extends ConsumerWidget {
     console.log("LoginScreen: Building LoginScreen widget");
     final config = ref.watch(appConfigProvider);
     console.log("LoginScreen: After reading appConfigProvider");
+
+    // Create an instance of AuthService
+    final authService = AuthService(ref);
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1D29), // dark background
@@ -71,28 +70,25 @@ class LoginScreen extends ConsumerWidget {
                       const Divider(color: Colors.white30),
                       const SizedBox(height: 16),
 
-                      _buildLoginOption(
+                      BuildLoginOption(
                         label: "MetaMask",
                         assetUrl: config.metamaskLoginIconUrl,
                         onPressed: () {
-                          // call trust wallet login logic
-                          // ref.invalidate(authProvider); // Refresh auth state
+                          // TODO: Implement MetaMask login
                         },
                       ),
-                      _buildLoginOption(
+                      BuildLoginOption(
                         label: "Trust Wallet",
                         assetUrl: config.trustWalletLoginIconUrl,
                         onPressed: () {
-                          // call trust wallet login logic
-                          // ref.invalidate(authProvider); // Refresh auth state
+                          // TODO: Implement Trust Wallet login
                         },
                       ),
-                      _buildLoginOption(
+                      BuildLoginOption(
                         label: "Argent",
                         assetUrl: config.argentLoginIconUrl,
                         onPressed: () {
-                          // call trust wallet login logic
-                          // ref.invalidate(authProvider); // Refresh auth state
+                          // TODO: Implement Argent login
                         },
                       ),
 
@@ -101,32 +97,60 @@ class LoginScreen extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _socialLoginIconButton(
+                          SocialLoginIconButton(
                             assetUrl: config.googleLoginIconUrl,
-                            onPressed: () {
-                              // Assign the callback returned by _login to onPressed
-                              // _login itself needs ref, so we call it within this new lambda
-                              _login(ref, _withGoogle)();
+                            onPressed: () async {
+                              await authService.loginWithGoogle();
+                              if (context.mounted) {
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteNames.home,
+                                );
+                              }
                             },
                           ),
                           const SizedBox(width: 4),
-                          _socialLoginIconButton(
+                          SocialLoginIconButton(
                             assetUrl: config.appleLoginIconUrl,
-                            onPressed: () {},
+                            onPressed: () async {
+                              await authService.loginWithApple();
+                              if (context.mounted) {
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteNames.home,
+                                );
+                              }
+                            },
                             iconColor: const ColorFilter.mode(
                               Colors.white,
                               BlendMode.srcIn,
                             ),
                           ),
                           const SizedBox(width: 4),
-                          _socialLoginIconButton(
+                          SocialLoginIconButton(
                             assetUrl: config.facebookLoginIconUrl,
-                            onPressed: () {},
+                            onPressed: () async {
+                              await authService.loginWithFacebook();
+                              if (context.mounted) {
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteNames.home,
+                                );
+                              }
+                            },
                           ),
                           const SizedBox(width: 4),
-                          _socialLoginIconButton(
+                          SocialLoginIconButton(
                             assetUrl: config.twitterLoginIconUrl,
-                            onPressed: () {},
+                            onPressed: () async {
+                              await authService.loginWithTwitter();
+                              if (context.mounted) {
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  RouteNames.home,
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),
@@ -136,9 +160,14 @@ class LoginScreen extends ConsumerWidget {
                       const SizedBox(height: 16),
 
                       EmailPhoneInputSwitcher(
-                        onSubmit: (value) {
-                          // console.log("Email/Phone submitted: $value");
-                          // ref.invalidate(authProvider);
+                        onSubmit: (value) async {
+                          await authService.loginWithEmailPasswordless(value);
+                          if (context.mounted) {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              RouteNames.home,
+                            );
+                          }
                         },
                       ),
 
@@ -195,73 +224,6 @@ class LoginScreen extends ConsumerWidget {
     );
   }
 
-  OutlinedButton _socialLoginIconButton({
-    required String assetUrl,
-    ColorFilter? iconColor,
-    VoidCallback? onPressed,
-  }) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: const BorderSide(color: Colors.white12),
-        minimumSize: const Size(18, 48),
-      ),
-      child: SvgPicture.network(
-        assetUrl,
-        height: 26,
-        width: 26,
-        colorFilter: iconColor,
-        placeholderBuilder: (BuildContext context) => const SizedBox(
-          width: 26,
-          height: 26,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
-        // Add error builder for SvgPicture.network
-        // Note: SvgPicture.network itself doesn't have a direct errorBuilder like Image.network.
-        // For robust SVG error handling, you might need to pre-fetch and then use SvgPicture.string
-        // or handle errors at a higher level if the library doesn't support it directly.
-        // For simplicity, we'll rely on the placeholder or a general network error message.
-      ),
-    );
-  }
-
-  Widget _buildLoginOption({
-    required String label,
-    required String assetUrl,
-    VoidCallback? onPressed,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: Colors.white,
-          side: const BorderSide(color: Colors.white12),
-          minimumSize: const Size(double.infinity, 48),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label),
-            Image.network(
-              assetUrl,
-              height: 26,
-              width: 26,
-              errorBuilder: (context, error, stackTrace) {
-                return const Icon(
-                  Icons.broken_image,
-                  color: Colors.grey,
-                  size: 26,
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _openWebView(BuildContext context, String title, String url) {
     Navigator.push(
       context,
@@ -269,67 +231,5 @@ class LoginScreen extends ConsumerWidget {
         builder: (context) => WebViewPage(title: title, url: url),
       ),
     );
-  }
-
-  VoidCallback _login(
-    WidgetRef ref,
-    Future<Web3AuthResponse> Function() method,
-  ) {
-    return () async {
-      console.log("LoginScreen: _login - START");
-      try {
-        ref.read(authProvider.notifier).setLoading();
-        final Web3AuthResponse response = await method();
-        console.log(
-          "LoginScreen: _login - Method successful. Response SessionId: ${response.sessionId}, PrivKey: ${response.privKey?.isNotEmpty ?? false}",
-        );
-        // Check if widget is still mounted before updating state
-        if (!ref.context.mounted) {
-          console.log(
-            "LoginScreen: _login - Context not mounted. Aborting state update.",
-          );
-          return;
-        }
-        // Correctly update the StateProvider
-        ref.read(logoutVisibleProvider.notifier).state = true;
-        console.log("LoginScreen: _login - logoutVisibleProvider set to true.");
-        // Invalidate authProvider to re-trigger auth state check if needed
-        // ref.read(authProvider.notifier).state = true;
-        ref.read(authProvider.notifier).setAuthenticated();
-        console.log("LoginScreen: _login - authProvider invalidated. END");
-        Navigator.pushReplacementNamed(ref.context, RouteNames.home);
-      } on UserCancelledException {
-        console.log("LoginScreen: _login - User cancelled. END");
-        // Optionally, handle UI feedback for cancellation
-        ref.read(authProvider.notifier).setUnauthenticated();
-      } on UnKnownException {
-        console.log("LoginScreen: _login - Unknown exception occurred. END");
-        ref.read(authProvider.notifier).setUnauthenticated();
-      }
-    };
-  }
-
-  Future<Web3AuthResponse> _withGoogle() async {
-    try {
-      final Web3AuthResponse response = await Web3AuthFlutter.login(
-        LoginParams(
-          loginProvider: Provider.google,
-          mfaLevel: MFALevel.OPTIONAL,
-          curve: Curve.secp256k1,
-        ),
-      );
-      console.log(
-        "LoginScreen: _withGoogle - Login successful. Response: ${response.toJson()}",
-      );
-      return response;
-    } catch (e) {
-      console.log(
-        "LoginScreen: _withGoogle - Error during Web3AuthFlutter.login: $e",
-      );
-      // Handle the error as needed
-      // You might want to show a user-friendly message or log the error
-      // Re-throw the error so it's caught by the _login method's try-catch
-      rethrow;
-    }
   }
 }

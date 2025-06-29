@@ -32,6 +32,12 @@ Future<void> setupWeb3Auth(WidgetRef ref) async {
   } else {
     console.log("WEB3AUTH_CLIENT_ID: ${dotenv.env['WEB3AUTH_CLIENT_ID']}");
   }
+  //rmau --  privKey: 143e85969d7219d249aec65716dc7f0b60ed6cff8d0b86581663c217e814ed3d
+  //apple -- privKey: 143e85969d7219d249aec65716dc7f0b60ed6cff8d0b86581663c217e814ed3d
+  //apple 2--privKey: 1d4a9970103d972ef8c7f15d2b62c3ffa7e37bda1650fe52d524778eace82f58
+  //apple 3--privKey: 1d4a9970103d972ef8c7f15d2b62c3ffa7e37bda1650fe52d524778eace82f58
+  //faceboo -- privKey: 074d13e0b2be1835b00c8154a340efd3101bcd2d07ca4e7bc33e07db0fb40497
+  //amit101 -- privKey: 0fe5131c0622095cb0f66aceed48e101027c770dfcad340d41a81bfb79fcf948
   await Web3AuthFlutter.init(
     Web3AuthOptions(
       clientId: "${dotenv.env['WEB3AUTH_CLIENT_ID']}",

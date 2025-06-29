@@ -6,4 +6,5 @@ class RouteNames {
   static const error = '/error';
   static const authRedirector = '/auth-redirector';
   static const emailPhoneInputSwitcher = '/emailPhoneInputSwitcher';
+  static const wallet = '/wallet';
 }

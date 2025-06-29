@@ -3,6 +3,7 @@ import 'package:megaverse/pages/app_splash_screen.dart';
 import 'package:megaverse/pages/error_screen.dart';
 import 'package:megaverse/pages/home_screen.dart';
 import 'package:megaverse/pages/login_screen.dart';
+import 'package:megaverse/pages/wallet_screen.dart';
 import 'package:megaverse/pages/web_view.dart';
 import 'package:megaverse/widgets/email_phone_toggle_widget.dart';
 
@@ -16,6 +17,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => const LoginScreen());
     case RouteNames.home:
       return MaterialPageRoute(builder: (_) => const HomeScreen());
+    case RouteNames.wallet:
+      return MaterialPageRoute(builder: (_) => WalletScreen());
     case RouteNames.emailPhoneInputSwitcher:
       return MaterialPageRoute(
         builder: (_) => EmailPhoneInputSwitcher(onSubmit: (value) {}),
