@@ -58,7 +58,7 @@ Megaverse is a cutting-edge Flutter application designed to be a social platform
     - Create a `.env` file in the project root.
     - Add your `WEB3AUTH_CLIENT_ID` (and any other necessary environment variables) to this file.
       ```
-      WEB3AUTH_CLIENT_ID="YOUR_WEB3AUTH_CLIENT_ID"
+      WEB3AUTH_CLIENT_ID=YOUR_WEB3AUTH_CLIENT_ID
       ```
 4.  **Run the Application:**
     ```bash
